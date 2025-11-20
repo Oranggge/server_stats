@@ -21,6 +21,7 @@ sidif="$(($si2 - $si1))" # servicing interrupts software
 #echo "stdif - $stdif"
 sum="$(($usdif+$sydif+$nidif+$iddif+$wadif+$hidif+$sidif))"
 #echo "sum - $sum"
+# // todo: maybe need to summ idle + idle cause i/o . depends on the task
 idle_percentage=$(bc -l <<< "scale=2;$iddif/$sum")
 #echo "idle_percentage - $idle_percentage"
 cpuusage=$(bc -l <<< "(1 - $idle_percentage) * 100")
