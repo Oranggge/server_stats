@@ -25,5 +25,19 @@ sum="$(($usdif+$sydif+$nidif+$iddif+$wadif+$hidif+$sidif))"
 idle_percentage=$(bc -l <<< "scale=2;$iddif/$sum")
 #echo "idle_percentage - $idle_percentage"
 cpuusage=$(bc -l <<< "(1 - $idle_percentage) * 100")
-echo "the cpu usage - $cpuusage %"
-
+echo "the cpu usage - $cpuusage%"
+echo "----"
+# Total memory usage (Free vs Used including percentage)
+memtotal=$( grep MemTotal /proc/meminfo | awk -F ' ' '{print $2}');
+echo "memTotal - $memtotal kB"
+memfree=$( grep MemFree /proc/meminfo | awk -F ' ' '{print $2}');
+memfreeperc=$(bc -l <<< "scale=2; (1 - ($memfree/$memtotal)) * 100")
+echo "memFree is memory which is not used by OS"
+echo "memFree is different from available memory"
+echo "memFree - $memfree kB"
+echo "memFree - $memfreeperc%"
+memavailable=$( grep MemAvailable /proc/meminfo | awk -F ' ' '{print $2}');
+memavailableperc=$(bc -l <<< "scale=2; (1 - ($memavailable/$memtotal)) * 100")
+echo "memAvailable - $memavailable kB"
+echo "mem Used - $((memtotal - memavailable)) kB"
+echo "mem Used - $memavailableperc%"
