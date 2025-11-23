@@ -42,8 +42,6 @@ echo "memAvailable - $memavailable kB"
 echo "mem Used - $((memtotal - memavailable)) kB"
 echo "mem Used - $memavailableperc%"
 ### Total disk usage (Free vs Used including percentage)
-# smt with stat -f and from /etc/mtab ?
-# stat -f "$(head -1 /etc/mtab | awk -F ' ' '{print $1}' )"
 
 block_size=$(stat -f / | grep Block | awk 'NR==1{print $3}');
 total_blocks=$(stat -f / | grep Blocks: | awk '{print $3}');
@@ -58,3 +56,14 @@ used_space=$(bc -l <<< "scale=2; (1 - ($free_blocks/$total_blocks)) * 100")
 echo "used disk space: $used_space%"
 available_space=$(bc -l <<< "scale=2; (100 - $used_space)")
 echo "available disk space: $available_space%"
+
+### Top 5 processes by CPU usage
+echo "PID and command of Top 5 processes by CPU usage:"
+ps aux --sort -pcpu | awk '{print $2 " " $11}' | head -6 | tail -n +2
+
+echo ""
+### Top 5 processes by Memory usage
+echo "PID and command of Top 5 processes by Memory usage:"
+ps aux --sort -pmem | awk '{print $2 " " $11}' | head -6 | tail -n +2
+
+
