@@ -27,7 +27,7 @@ idle_percentage=$(bc -l <<< "scale=2;$iddif/$sum")
 cpuusage=$(bc -l <<< "(1 - $idle_percentage) * 100")
 echo "the cpu usage - $cpuusage%"
 echo "----"
-# Total memory usage (Free vs Used including percentage)
+### Total memory usage (Free vs Used including percentage)
 memtotal=$( grep MemTotal /proc/meminfo | awk -F ' ' '{print $2}');
 echo "memTotal - $memtotal kB"
 memfree=$( grep MemFree /proc/meminfo | awk -F ' ' '{print $2}');
@@ -41,3 +41,20 @@ memavailableperc=$(bc -l <<< "scale=2; (1 - ($memavailable/$memtotal)) * 100")
 echo "memAvailable - $memavailable kB"
 echo "mem Used - $((memtotal - memavailable)) kB"
 echo "mem Used - $memavailableperc%"
+### Total disk usage (Free vs Used including percentage)
+# smt with stat -f and from /etc/mtab ?
+# stat -f "$(head -1 /etc/mtab | awk -F ' ' '{print $1}' )"
+
+block_size=$(stat -f / | grep Block | awk 'NR==1{print $3}');
+total_blocks=$(stat -f / | grep Blocks: | awk '{print $3}');
+echo "total memory size $(($total_blocks * $block_size)) bytes"
+free_blocks=$(stat -f / | grep Blocks: | awk '{print $5}');
+echo "free disk space $(($free_blocks * $block_size)) bytes"
+echo "used disk size $((($total_blocks-$free_blocks)* $block_size))"
+available_blocks=$(stat -f / | grep Blocks: | awk '{print $7}');
+#echo "available disk size $(($available_blocks * $block_size))"
+#echo "used disk size $((($total_blocks-$available_blocks)* $block_size))"
+used_space=$(bc -l <<< "scale=2; (1 - ($free_blocks/$total_blocks)) * 100")
+echo "used disk space: $used_space%"
+available_space=$(bc -l <<< "scale=2; (100 - $used_space)")
+echo "available disk space: $available_space%"
